@@ -15,7 +15,6 @@ import GridListTile from '@material-ui/core/GridListTile';
 //change the port if your service runing on the different port.
 const baseUrl = "http://localhost:62786/api/"
 
-
 const styles = theme => ({
     root: {
         "& .MuiTableCell-head": {
@@ -58,6 +57,8 @@ export function ImageGridList(tileData) {
         );
     }
 }
+
+
 const DCandidates = ({ classes, ...props }) => {
     const [currentId, setCurrentId] = useState(0)
     const [selectedFile, setFile] = useState("https://dirico.io/wp-content/uploads/2020/11/dirico_logo-OpenGraph.png");
@@ -121,71 +122,65 @@ const DCandidates = ({ classes, ...props }) => {
     }
 
     const createNode = (nodename, propObj, node) => {
-        console.log(nodename)
+       // console.log(nodename)
         return (
                     
             <Button variant="contained" style = {{width: 200}}
                 color="primary" className={classes.smMargin} onClick={() => {
-                    console.log(node);
+                    console.log("node object"+node);
                     const onSuccess = () => {
                         addToast("Submitted successfully", { appearance: 'success' })
                     }
-                    node.name = nodeTest;
-                    console.log(nodeTest);
-                    props.createDCandidate(node, onSuccess)
-                    props.fetchAllDCandidates();
-                    console.log(propObj)
-                    setNodeTest("");
-                    setTree(...[propObj])
+                   
+                    console.log(node);
+                    if (typeof node !== 'undefined') {
+                        node.name = nodeTest;
+                        props.createDCandidate(node, onSuccess)
+                        props.fetchAllDCandidates();
+                        console.log(propObj)
+                        setNodeTest("");
+                        setTree(...[propObj])
+                    }
                 }}>Create Directory</Button>
            
         )
     }
 
 
-    const imagevalue = (nodename, propObj, node) => {
+    const deleteNode = (nodename, propObj, node) => {
         console.log(nodename)
         //if (nodename !== null)
         return (
                     
             <Button variant="contained" style = {{width: 200}}
                 color="secondary" className={classes.smMargin} onClick={() => {
-                    
-                    //setText(...propObj, node.Asset = "No Image");
-                    //console.log(propObj)
-                    if (window.confirm('Are you sure to delete this record?'))
-                        props.deleteDCandidate(id, () =>
-                            addToast("Deleted successfully", { appearance: 'info' }
-                                //setTree(...props)
+                    if (id >= 0) {
+                        //setText(...propObj, node.Asset = "No Image");
+                        //console.log(propObj)
+                        if (window.confirm('Are you sure to delete this record?'))
+                            props.deleteDCandidate(id, () =>
+                                addToast("Deleted successfully", { appearance: 'info' }
+                                    //setTree(...props)
                              
-                            ))
-                    setFile();
-                    setSelectedFilesList();
-                    props.fetchAllDCandidates();
-                    console.log(propObj)
-                    setTree(...[props])
+                                ))
+                        setFile();
+                        setSelectedFilesList();
+                        props.fetchAllDCandidates();
+                        console.log(propObj)
+                        setTree(...[props])
                     
-                    // else
-                    // {
-                    //     addToast("Can not delete the root node...", { appearance: 'info' })
-                    // }
+                        // else
+                        // {
+                        //     addToast("Can not delete the root node...", { appearance: 'info' })
+                        // }
+                    }
                 }}>Delete Directory</Button>
            
         )
-    }
+    }  
 
-    const onFileChange = event => {
-        if (event.target.files && event.target.files[0]) {
-            let imageFile = event.target.files[0];
-            console.log("Image file during upload" + imageFile);
-            const reader = new FileReader();
-            reader.onload = x => {
-                console.log("file content" + x.target.result);
-                setFile(x.target.result)
-            }
-            reader.readAsDataURL(imageFile);
-        }        
-    };    
+
+    //form submit event handler....
     const handleMyFormSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -217,6 +212,8 @@ const DCandidates = ({ classes, ...props }) => {
             );        
     }
 
+    //To render images on grid list
+    //Video is in progress....
     const renderPhotos = (source) => {
         console.log('source: ', source);
         const classes2 = mklop();
@@ -228,8 +225,7 @@ const DCandidates = ({ classes, ...props }) => {
                         {source.map((tile) => (
                             <GridListTile key={tile.img} cols={tile.cols || 1}>
                                  <img src={tile} alt="" key={tile} /> 
-                                {/* <source src={window.URL.createObjectURL(tile)} type="video/mp4"></source>    */}
-                                
+                                {/* <source src={window.URL.createObjectURL(tile)} type="video/mp4"></source>    */}                                
                             </GridListTile>
                         ))}
                     </GridList>
@@ -237,53 +233,55 @@ const DCandidates = ({ classes, ...props }) => {
             );
         }
     };
+
+
+    //upload images...
     const handleImageChange = (e) => {
                 
+        if (id >= 0) {           
+         
+            if (e.target.files) {
+                const filesArray = Array.from(e.target.files).map((file) => URL.createObjectURL(file));
 
-
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files).map((file) => URL.createObjectURL(file));
-
-            // console.log("filesArray: ", filesArray);
-            if (filesArray != null) {
-                setSelectedFiles(filesArray);
-                Array.from(e.target.files).map(
-                    (file) => URL.revokeObjectURL(file) // avoid memory leak
-                );
-            }
-            let sF = e.target.files;
-            Array.prototype.forEach.call(sF, element => {
-                const reader = new FileReader();
-                reader.onload = x => {
-                    //console.log("file content" + x.target.result);
-                    console.log(element.name.replaceAll(/\s+/g, '') + " file content : " + x.target.result);                       
-                    const formData = new FormData();
-                    // Update the formData object
-                    formData.append(
-                        "id",
-                        id
-                    );                         
-                    // formData.append('name', 'Image Upload');
-                    formData.append('file_attachment', x.target.result);
-                    // Request made to the backend api
-                    // Send formData object
-                    console.log(x.target.result);
-                    fetch(baseUrl + "AssetsTree/upload", {
-                        // content-type header should not be specified!
-                        method: 'POST',
-                        body: formData   
-                    })
-                        .then(response => { response.json(); })
-                        .then(success => {
-                        })
-                        .catch(error => console.log(error)
+                // console.log("filesArray: ", filesArray);
+                if (filesArray != null) {
+                    setSelectedFiles(filesArray);
+                    Array.from(e.target.files).map(
+                        (file) => URL.revokeObjectURL(file) // avoid memory leak
+                    );
+                }
+                let sF = e.target.files;
+                Array.prototype.forEach.call(sF, element => {
+                    const reader = new FileReader();
+                    reader.onload = x => {
+                        //console.log("file content" + x.target.result);                       
+                        const formData = new FormData();
+                        // Update the formData object
+                        formData.append(
+                            "id",
+                            id
                         );
-                };
-                reader.readAsDataURL(element);
-            });
-            addToast("Uploaded successfully", { appearance: 'info' });
-        }
-               
+                        // formData.append('name', 'Image Upload');
+                        formData.append('file_attachment', x.target.result);
+                        // Request made to the backend api
+                        // Send formData object
+                        console.log(x.target.result);
+                        fetch(baseUrl + "AssetsTree/upload", {
+                            // content-type header should not be specified!
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => { response.json(); })
+                            .then(success => {
+                            })
+                            .catch(error => console.log(error)
+                            );
+                    };
+                    reader.readAsDataURL(element);
+                });
+                addToast("Uploaded successfully", { appearance: 'info' });
+            }
+        }      
     };
 
     return (
@@ -324,7 +322,7 @@ const DCandidates = ({ classes, ...props }) => {
                                 {createNode(nodename, props.dCandidateList, node)}
                             </Grid>
                             <Grid item xs={10} spacing={8}>
-                                {imagevalue(nodename, props.dCandidateList, node)}
+                                {deleteNode(nodename, props.dCandidateList, node)}
                             </Grid>
                             <Grid item xs={10} spacing={8}>                                
                                 <div>                                    
