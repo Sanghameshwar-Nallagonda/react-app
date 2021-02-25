@@ -1,16 +1,18 @@
 App Structure
 -------------
 
+Only for dirico (dCandidate) tree...
+
 ● src
 +---● actions
 |   |
-|   |-- api.js (handle all http request)
+|   |-- api.js (handle http request)
 |   |-- dCandidate.js (Redux actions & action creators) 
 |   |-- store.js (configure redux store)
 |
 +---● components
 |   |
-|   |--DCandidateForm.js (form operations) - child
+|   |
 |   |--DCandidates.js  (list of records) - parent
 |   |--useForm.js (handles common form opearations)
 |
@@ -26,8 +28,8 @@ App Structure
 
 redux, react-redux, redux-thunk
 
-actions - create, update, delete etc ,data 
+actions - create, update, upload, delete etc ,data 
 reducers
 store
 
-cmpnt -> dispatch(action) -> reducer -> cmpnt
+for uploading not using resusers..
